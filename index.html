@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bitcoin Price Tracker | Live & Historical</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>₿</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+  <div class="noise"></div>
+
+  <header>
+    <div class="logo">
+      <svg class="btc-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="currentColor"/><path d="M21.5 14.5c.5-3.2-2-4.5-5.3-5.4L17 7l-2.3-.3-.9 2.1c-.5-.1-1-.2-1.5-.3l.9-2.2-2.3-.3-.9 2.2c-.4-.1-.8-.2-1.2-.3l.1-.1-3.2-.8-.6 1.5s1.2.3 1.1.4c.6.2.8.6.7 1l-.7 1.9-.7 2c-.1.2-.3.5-.7.4.1 0-1.1-.4-1.1-.4l-1.1 2.5 3 .7c.5.1 1.1.3 1.6.4l-.9 2.3 1.8.4.9-2.3c.5.1 1 .2 1.5.3l-.9 2.3 1.9.5.9-2.3c3.3.8 5.8.3 6.8-2.6.9-2.3-.1-3.6-1.6-4.3 1.1-.3 2-1.1 2.2-2.8zm-4 5.3c-.5 2-4.3 1-5.5.7l1-3.7c1.2.3 5.1.9 4.5 3zm.5-5.3c-.5 1.9-3.4 1-4.6.7l.9-3.4c1.2.3 4.3.9 3.7 2.7z" fill="#0f172a"/></svg>
+      BTC Tracker
+    </div>
+    <div class="live-pulse">
+      <span class="pulse-dot"></span> LIVE
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Bitcoin Price</h1>
+      <div class="price-display">
+        <span id="price" class="price-amount">---</span>
+        <span id="currency" class="currency">USD</span>
+        <div id="price-change" class="price-change">
+          <span class="pct">...</span>
+          <span class="arrow"></span>
+        </div>
+      </div>
+      <div class="meta-row">
+        <span id="last-update">Updating…</span>
+        <span id="market-cap">Market Cap: ---</span>
+        <span id="volume">24h Vol: ---</span>
+      </div>
+    </section>
+
+    <section class="chart-section">
+      <div class="range-tabs">
+        <button data-range="1" class="active">24H</button>
+        <button data-range="7">7D</button>
+        <button data-range="30">30D</button>
+        <button data-range="365">1Y</button>
+        <button data-range="1825">5Y</button>
+        <button data-range="3650">10Y</button>
+        <button data-range="max">ALL 🚀</button>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="btcChart"></canvas>
+        <div id="chart-loader" class="loader hidden">
+          <div class="spinner"></div>
+          <p>Fetching data from CoinGecko…</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">All-Time High</div>
+        <div class="stat-value" id="ath">$108,786</div>
+        <div class="stat-date" id="ath-date">Mar 14, 2025</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">All-Time Low</div>
+        <div class="stat-value" id="atl">$0.05</div>
+        <div class="stat-date" id="atl-date">~Jul 17, 2010</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Bitcoin Genesis</div>
+        <div class="stat-value" id="genesis">Jan 3, 2009</div>
+        <div class="stat-date">Block 0 mined by Satoshi</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Halving Cycle</div>
+        <div class="stat-value" id="halving">~Q2 2028</div>
+        <div class="stat-date">Next block reward: 1.625 BTC</div>
+      </div>
+    </section>
+
+    <section class="history-table">
+      <h2>Historical Milestones</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Date</th><th>Event</th><th>Price</th><th>% Change → Today</th></tr>
+          </thead>
+          <tbody id="milestones">
+            <tr><td>Jan 3, 2009</td><td>Bitcoin Genesis Block</td><td>$0.00</td><td class="pct-cell up">N/A</td></tr>
+            <tr><td>Jul 17, 2010</td><td>Mt. Gox opens</td><td>~$0.05</td><td class="pct-cell up" data-base="0.05">---</td></tr>
+            <tr><td>Nov 29, 2011</td><td>First bubble pops</td><td>$2.00</td><td class="pct-cell up" data-base="2">---</td></tr>
+            <tr><td>Dec 7, 2013</td><td>2013 Peak</td><td>$1,147</td><td class="pct-cell up" data-base="1147">---</td></tr>
+            <tr><td>Dec 11, 2017</td><td>2017 Bubble Peak</td><td>$19,783</td><td class="pct-cell up" data-base="19783">---</td></tr>
+            <tr><td>Mar 13, 2020</td><td>COVID crash bottom</td><td>$3,850</td><td class="pct-cell up" data-base="3850">---</td></tr>
+            <tr><td>Nov 10, 2021</td><td>Former ATH</td><td>$68,789</td><td class="pct-cell up" data-base="68789">---</td></tr>
+            <tr><td>Mar 14, 2025</td><td>New ATH</td><td>$108,786</td><td class="pct-cell" data-base="108786">---</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="footer">
+      <p>Data from <a href="https://www.coingecko.com/" target="_blank">CoinGecko</a>. Updates every 60 seconds.</p>
+      <p>Pure client-side — no server, no tracking, no API keys needed.</p>
+    </section>
+  </main>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
