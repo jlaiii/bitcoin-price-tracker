@@ -24,19 +24,19 @@ const BTC = {
   retryDelays: [2000, 5000, 10000],
 
   /* Timeframe definitions
-     key → {days, label, interval}  */
+     key → {days, label, interval, localFile}  */
   RANGES: {
-    1:    { days: 1,    label: '24H',   interval: 'hourly' },
-    3:    { days: 3,    label: '3D',    interval: 'hourly' },
-    7:    { days: 7,    label: '7D',    interval: 'daily' },
-    30:   { days: 30,   label: '30D',   interval: 'daily' },
-    90:   { days: 90,   label: '90D',   interval: 'daily' },
-    180:  { days: 180,  label: '180D',  interval: 'daily' },
-    365:  { days: 365,  label: '1Y',    interval: 'daily' },
-    730:  { days: '730', label: '2Y',    interval: 'daily' },
-    1095: { days: '1095',label: '3Y',    interval: 'daily' },
-    1825: { days: '1825',label: '5Y',    interval: 'daily' },
-    max:  { days: 'max', label: 'ALL',   interval: 'daily' }
+    1:    { days: 1,    label: '24H',   interval: 'hourly', localFile: 'data/prices_1d.json' },
+    3:    { days: 3,    label: '3D',    interval: 'hourly', localFile: 'data/prices_1d.json' },
+    7:    { days: 7,    label: '7D',    interval: 'daily',  localFile: 'data/prices_7d.json' },
+    30:   { days: 30,   label: '30D',   interval: 'daily',  localFile: 'data/prices_30d.json' },
+    90:   { days: 90,   label: '90D',   interval: 'daily',  localFile: 'data/prices_90d.json' },
+    180:  { days: 180,  label: '180D',  interval: 'daily',  localFile: 'data/prices_180d.json' },
+    365:  { days: 365,  label: '1Y',    interval: 'daily',  localFile: 'data/prices_2y.json' },
+    730:  { days: '730', label: '2Y',    interval: 'daily', localFile: 'data/prices_2y.json' },
+    1095: { days: '1095',label: '3Y',    interval: 'daily', localFile: 'data/prices_3y.json' },
+    1825: { days: '1825',label: '5Y',    interval: 'daily', localFile: 'data/prices_5y.json' },
+    max:  { days: 'max', label: 'ALL',   interval: 'daily', localFile: 'data/prices_all.json' }
   },
 
   CACHE_MAX_AGE: 5 * 60 * 1000, // 5 minutes
@@ -213,7 +213,7 @@ const BTC = {
     if (loader) loader.classList.remove('hidden');
 
     try {
-      // Public CoinGecko limits to 365 days. For >365 we’ll fetch what we can and annotate.
+      // 1) Try CoinGecko API first
       const requestDays = (typeof cfg.days === 'number' && cfg.days > 365) ? 365 : cfg.days;
       const url = `${this.API_BASE}/coins/bitcoin/market_chart?vs_currency=usd&days=${requestDays}&interval=${cfg.interval}`;
       const res = await fetch(url);
@@ -224,17 +224,14 @@ const BTC = {
       let prices = d.prices;
       let volumes = d.total_volumes || [];
 
-      // If range > 365 days or 'max', we may need to use year_data.json as extra context
       const showLimitNote =
         (typeof cfg.days === 'number' && cfg.days > 365) || cfg.days === 'max' || cfg.days === '730' || cfg.days === '1095' || cfg.days === '1825';
 
       if (showLimitNote && this.yearData && this.yearData.length) {
-        // prepend year_data that is earlier than the first API point
         const apiStart = prices[0][0];
         const extra = this.yearData.filter(pt => pt[0] < apiStart);
         if (extra.length) {
           prices = extra.concat(prices);
-          // attempt to align volumes (year_data has no volumes; pad with 0)
           if (volumes.length) {
             const zeroVols = extra.map(() => [0, 0]);
             volumes = zeroVols.concat(volumes);
@@ -245,20 +242,68 @@ const BTC = {
       const payload = { prices, total_volumes: volumes };
       this.cacheSet(cacheKey, payload);
       this.renderChart(payload, cfg, rangeKey);
-    } catch (e) {
-      console.error('Chart fetch failed:', e);
-      // try cached (even if expired)
-      const stale = this.cacheGet(cacheKey);
-      if (stale) {
-        this.renderChart(stale, cfg, rangeKey);
-      } else if (loader) {
-        loader.querySelector('p').textContent = 'Chart data temporarily unavailable — retrying soon ⏳';
+    } catch (apiErr) {
+      console.warn('CoinGecko API failed, trying local file:', apiErr.message || apiErr);
+      // 2) Fallback to local static JSON
+      const local = await this.loadLocalData(cfg, rangeKey);
+      if (local && local.prices?.length) {
+        this.cacheSet(cacheKey, local);
+        this.renderChart(local, cfg, rangeKey);
+      } else {
+        // 3) No data at all — show error in loader
+        if (loader) loader.querySelector('p').textContent = 'Chart data temporarily unavailable — retrying soon ⏳';
       }
-      return;
     } finally {
       const loader2 = document.getElementById('chart-loader');
       if (loader2) loader2.classList.add('hidden');
     }
+  },
+
+  async loadLocalData(cfg, rangeKey) {
+    // Map timeframes to local JSON files
+    const fileMap = cfg.localFile ? [cfg.localFile] : [];
+    // Additional fallbacks
+    if (rangeKey === '1') fileMap.push('data/prices_1d.json');
+    if (rangeKey === '3') fileMap.push('data/prices_1d.json');
+    if (rangeKey === '7') fileMap.push('data/prices_7d.json');
+    if (rangeKey === '30') fileMap.push('data/prices_30d.json');
+    if (rangeKey === '90') fileMap.push('data/prices_90d.json');
+    if (rangeKey === '180') fileMap.push('data/prices_180d.json');
+    if (rangeKey === '365') fileMap.push('data/prices_2y.json');
+    if (rangeKey === '730') fileMap.push('data/prices_2y.json');
+    if (rangeKey === '1095') fileMap.push('data/prices_3y.json');
+    if (rangeKey === '1825') fileMap.push('data/prices_5y.json');
+    if (rangeKey === 'max') fileMap.push('data/prices_all.json');
+
+    // prices_all.json is nested by key
+    const isNested = (url) => url.includes('prices_all.json');
+
+    for (const url of [...new Set(fileMap)]) { // dedupe
+      try {
+        const res = await fetch(url + (url.includes('?') ? '&' : '?') + '_=' + Date.now());
+        if (!res.ok) throw new Error(`${url} HTTP ${res.status}`);
+        const json = await res.json();
+        if (json.prices && Array.isArray(json.prices)) {
+          return { prices: json.prices, total_volumes: json.total_volumes || [] };
+        }
+        // prices_all.json is nested: { "1d": {prices, total_volumes}, ... }
+        if (isNested(url)) {
+          const rangeAlias = String(rangeKey);
+          const allKeyMap = {
+            '1': '1d', '3': '1d', '7': '7d', '30': '30d', '90': '90d',
+            '180': '180d', '365': '2y', '730': '2y', '1095': '3y', '1825': '5y', 'max': 'all'
+          };
+          const key = allKeyMap[rangeAlias];
+          const section = json[key] || json.all;
+          if (section && section.prices?.length) {
+            return { prices: section.prices, total_volumes: section.total_volumes || [] };
+          }
+        }
+      } catch (e) {
+        console.warn(`Local fallback ${url} failed:`, e.message || e);
+      }
+    }
+    return null;
   },
 
   renderChart(data, cfg, rangeKey) {
