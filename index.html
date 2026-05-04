@@ -3,114 +3,413 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bitcoin Price Tracker | Live & Historical</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>₿</text></svg>">
+  <title>Bitcoin Price Tracker | Live BTC Dashboard & Charts</title>
+  <meta name="description" content="Real-time Bitcoin price tracker with live charts, historical data, mining stats, DCA calculator, fear & greed index, and market comparisons. Dark glassmorphism UI.">
+  <meta name="keywords" content="Bitcoin, BTC, price, chart, cryptocurrency, live, dashboard, tracker">
+  <meta name="author" content="BTC Tracker">
+  <meta name="theme-color" content="#05070a">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Bitcoin Price Tracker | Live BTC Dashboard">
+  <meta property="og:description" content="Real-time Bitcoin price, advanced charts, mining stats, DCA calculator, fear & greed index.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://btc-tracker.example.com/">
+  <meta property="og:image" content="https://btc-tracker.example.com/og-image.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Bitcoin Price Tracker | Live BTC Dashboard">
+  <meta name="twitter:description" content="Real-time Bitcoin price, advanced charts, mining stats, DCA calculator, fear & greed index.">
+  <meta name="twitter:image" content="https://btc-tracker.example.com/og-image.png">
+
+  <!-- Preconnect -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%82%BF%3C/text%3E%3C/svg%3E">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
   <link rel="stylesheet" href="css/style.css">
+
+  <!-- Chart.js + Date Adapter -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
+  <!-- Background layers -->
   <div class="bg-gradient"></div>
   <div class="noise"></div>
 
+  <!-- Header / Navigation -->
   <header>
     <div class="logo">
       <svg class="btc-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="16" fill="currentColor"/><path d="M21.5 14.5c.5-3.2-2-4.5-5.3-5.4L17 7l-2.3-.3-.9 2.1c-.5-.1-1-.2-1.5-.3l.9-2.2-2.3-.3-.9 2.2c-.4-.1-.8-.2-1.2-.3l.1-.1-3.2-.8-.6 1.5s1.2.3 1.1.4c.6.2.8.6.7 1l-.7 1.9-.7 2c-.1.2-.3.5-.7.4.1 0-1.1-.4-1.1-.4l-1.1 2.5 3 .7c.5.1 1.1.3 1.6.4l-.9 2.3 1.8.4.9-2.3c.5.1 1 .2 1.5.3l-.9 2.3 1.9.5.9-2.3c3.3.8 5.8.3 6.8-2.6.9-2.3-.1-3.6-1.6-4.3 1.1-.3 2-1.1 2.2-2.8zm-4 5.3c-.5 2-4.3 1-5.5.7l1-3.7c1.2.3 5.1.9 4.5 3zm.5-5.3c-.5 1.9-3.4 1-4.6.7l.9-3.4c1.2.3 4.3.9 3.7 2.7z" fill="#0f172a"/></svg>
       BTC Tracker
     </div>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a href="#dashboard" class="nav-link">Dashboard</a>
+      <a href="#charts" class="nav-link">Charts</a>
+      <a href="#converter" class="nav-link">Converter</a>
+      <a href="#mining-stats" class="nav-link">Mining</a>
+      <a href="#about" class="nav-link">About</a>
+    </nav>
     <div class="live-pulse">
       <span class="pulse-dot"></span> LIVE
     </div>
   </header>
 
   <main>
-    <section class="hero">
+    <!-- Hero / Price Section -->
+    <section class="hero" id="dashboard">
       <h1>Bitcoin Price</h1>
       <div class="price-display">
-        <span id="price" class="price-amount">---</span>
+        <span id="price" class="price-amount skeleton">---</span>
         <span id="currency" class="currency">USD</span>
-        <div id="price-change" class="price-change">
+        <div id="price-change" class="price-change skeleton">
           <span class="pct">...</span>
           <span class="arrow"></span>
         </div>
       </div>
       <div class="meta-row">
-        <span id="last-update">Updating…</span>
-        <span id="market-cap">Market Cap: ---</span>
-        <span id="volume">24h Vol: ---</span>
+        <span id="last-update" class="skeleton">Updating…</span>
+        <span id="market-cap" class="skeleton">Market Cap: ---</span>
+        <span id="volume" class="skeleton">24h Vol: ---</span>
       </div>
     </section>
 
-    <section class="chart-section">
+    <!-- Chart Section -->
+    <section class="chart-section" id="charts">
       <div class="range-tabs">
         <button data-range="1" class="active">24H</button>
+        <button data-range="3">3D</button>
         <button data-range="7">7D</button>
-        <button data-range="30">30D</button>
+        <button data-range="30">1M</button>
+        <button data-range="90">3M</button>
+        <button data-range="180">6M</button>
         <button data-range="365">1Y</button>
+        <button data-range="730">2Y</button>
+        <button data-range="1095">3Y</button>
         <button data-range="1825">5Y</button>
-        <button data-range="3650">10Y</button>
-        <button data-range="max">ALL 🚀</button>
+        <button data-range="max">ALL</button>
       </div>
-      <div class="chart-wrapper">
+      <div class="chart-wrapper" data-path="prices">
         <canvas id="btcChart"></canvas>
-        <div id="chart-loader" class="loader hidden">
+        <div id="chart-loader" class="loader">
           <div class="spinner"></div>
           <p>Fetching data from CoinGecko…</p>
         </div>
       </div>
     </section>
 
-    <section class="stats-grid">
-      <div class="stat-card">
+    <!-- Stats Grid -->
+    <section class="stats-grid" aria-label="Key statistics">
+      <article class="stat-card">
         <div class="stat-label">All-Time High</div>
         <div class="stat-value" id="ath">$108,786</div>
         <div class="stat-date" id="ath-date">Mar 14, 2025</div>
-      </div>
-      <div class="stat-card">
+      </article>
+      <article class="stat-card">
         <div class="stat-label">All-Time Low</div>
         <div class="stat-value" id="atl">$0.05</div>
         <div class="stat-date" id="atl-date">~Jul 17, 2010</div>
-      </div>
-      <div class="stat-card">
+      </article>
+      <article class="stat-card">
         <div class="stat-label">Bitcoin Genesis</div>
         <div class="stat-value" id="genesis">Jan 3, 2009</div>
         <div class="stat-date">Block 0 mined by Satoshi</div>
-      </div>
-      <div class="stat-card">
+      </article>
+      <article class="stat-card">
         <div class="stat-label">Halving Cycle</div>
         <div class="stat-value" id="halving">~Q2 2028</div>
         <div class="stat-date">Next block reward: 1.625 BTC</div>
+      </article>
+    </section>
+
+    <!-- Price Converter Widget -->
+    <section class="converter-section" id="converter">
+      <h2 class="section-title">Price Converter</h2>
+      <div class="converter-card glass-card">
+        <div class="converter-row">
+          <div class="converter-field">
+            <label for="btc-input">BTC</label>
+            <input id="btc-input" type="number" step="0.00000001" value="1" placeholder="0.00" inputmode="decimal">
+            <input type="range" id="btc-slider" min="0" max="10" step="0.01" value="1" aria-label="BTC amount slider">
+          </div>
+          <button id="converter-toggle" class="converter-toggle" aria-label="Reverse conversion direction" title="Swap direction">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 11 12 6 7 11"></polyline><polyline points="7 13 12 18 17 13"></polyline></svg>
+          </button>
+          <div class="converter-field">
+            <label for="usd-output">USD</label>
+            <input id="usd-output" type="text" readonly placeholder="---" value="---">
+          </div>
+        </div>
       </div>
     </section>
 
+    <!-- Fear & Greed Index -->
+    <section class="fear-greed-section" id="fear-greed">
+      <h2 class="section-title">Fear &amp; Greed Index</h2>
+      <div class="glass-card fear-greed-card">
+        <div class="fear-greed-gauge">
+          <svg viewBox="0 0 200 110" class="gauge-svg" aria-hidden="true">
+            <!-- Gauge background arc -->
+            <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="18" stroke-linecap="round"/>
+            <!-- Colored segments -->
+            <path d="M 20 100 A 80 80 0 0 1 56 40" fill="none" stroke="#ef4444" stroke-width="18" stroke-linecap="round" opacity="0.8"/>
+            <path d="M 56 40 A 80 80 0 0 1 100 20" fill="none" stroke="#f59e0b" stroke-width="18" stroke-linecap="round" opacity="0.8"/>
+            <path d="M 100 20 A 80 80 0 0 1 144 40" fill="none" stroke="#10b981" stroke-width="18" stroke-linecap="round" opacity="0.8"/>
+            <path d="M 144 40 A 80 80 0 0 1 180 100" fill="none" stroke="#22c55e" stroke-width="18" stroke-linecap="round" opacity="0.8"/>
+            <!-- Needle -->
+            <g class="gauge-needle" id="gauge-needle" transform="rotate(-90, 100, 100)">
+              <line x1="100" y1="100" x2="100" y2="35" stroke="#f2a900" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="100" cy="100" r="6" fill="#f2a900"/>
+            </g>
+          </svg>
+          <div class="gauge-labels">
+            <span>Extreme Fear</span>
+            <span>Neutral</span>
+            <span>Extreme Greed</span>
+          </div>
+        </div>
+        <div class="fear-greed-values">
+          <div id="fear-greed-value" class="fear-greed-score skeleton">--</div>
+          <div id="fear-greed-label" class="fear-greed-text skeleton">Loading…</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DCA Calculator -->
+    <section class="dca-section" id="dca-calculator">
+      <h2 class="section-title">DCA Calculator</h2>
+      <div class="glass-card dca-card">
+        <div class="dca-form">
+          <div class="dca-field">
+            <label for="dca-amount">Monthly Investment</label>
+            <input id="dca-amount" type="number" value="100" min="1" step="10" placeholder="100" inputmode="numeric">
+            <span class="field-hint">US Dollars</span>
+          </div>
+          <div class="dca-field">
+            <label for="dca-frequency">Frequency</label>
+            <select id="dca-frequency">
+              <option value="weekly">Weekly</option>
+              <option value="monthly" selected>Monthly</option>
+            </select>
+          </div>
+          <div class="dca-field">
+            <label for="dca-start">Start Date</label>
+            <input id="dca-start" type="date" value="2020-01-01">
+          </div>
+          <button id="dca-calculate" class="dca-btn">Calculate</button>
+        </div>
+        <div id="dca-results" class="dca-results">
+          <div class="dca-result-item skeleton">
+            <span class="dca-result-label">Total Invested</span>
+            <span class="dca-result-value" id="dca-total-invested">---</span>
+          </div>
+          <div class="dca-result-item skeleton">
+            <span class="dca-result-label">BTC Acquired</span>
+            <span class="dca-result-value" id="dca-btc-acquired">---</span>
+          </div>
+          <div class="dca-result-item skeleton">
+            <span class="dca-result-label">Current Value</span>
+            <span class="dca-result-value" id="dca-current-value">---</span>
+          </div>
+          <div class="dca-result-item skeleton">
+            <span class="dca-result-label">ROI</span>
+            <span class="dca-result-value" id="dca-roi">---</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Historical Price Table -->
     <section class="history-table">
       <h2>Historical Milestones</h2>
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>Date</th><th>Event</th><th>Price</th><th>% Change → Today</th></tr>
+            <tr>
+              <th data-sort="date" class="sortable">Date <span class="sort-icon">↕</span></th>
+              <th data-sort="event" class="sortable">Event <span class="sort-icon">↕</span></th>
+              <th data-sort="price" class="sortable">Price <span class="sort-icon">↕</span></th>
+              <th data-sort="change" class="sortable">% Change → Today <span class="sort-icon">↕</span></th>
+              <th data-sort="cap" class="sortable">Market Cap <span class="sort-icon">↕</span></th>
+            </tr>
           </thead>
           <tbody id="milestones">
-            <tr><td>Jan 3, 2009</td><td>Bitcoin Genesis Block</td><td>$0.00</td><td class="pct-cell up">N/A</td></tr>
-            <tr><td>Jul 17, 2010</td><td>Mt. Gox opens</td><td>~$0.05</td><td class="pct-cell up" data-base="0.05">---</td></tr>
-            <tr><td>Nov 29, 2011</td><td>First bubble pops</td><td>$2.00</td><td class="pct-cell up" data-base="2">---</td></tr>
-            <tr><td>Dec 7, 2013</td><td>2013 Peak</td><td>$1,147</td><td class="pct-cell up" data-base="1147">---</td></tr>
-            <tr><td>Dec 11, 2017</td><td>2017 Bubble Peak</td><td>$19,783</td><td class="pct-cell up" data-base="19783">---</td></tr>
-            <tr><td>Mar 13, 2020</td><td>COVID crash bottom</td><td>$3,850</td><td class="pct-cell up" data-base="3850">---</td></tr>
-            <tr><td>Nov 10, 2021</td><td>Former ATH</td><td>$68,789</td><td class="pct-cell up" data-base="68789">---</td></tr>
-            <tr><td>Mar 14, 2025</td><td>New ATH</td><td>$108,786</td><td class="pct-cell" data-base="108786">---</td></tr>
+            <tr data-date="2009-01-03" data-price="0" data-cap="0">
+              <td>Jan 3, 2009</td>
+              <td>Bitcoin Genesis Block</td>
+              <td>$0.00</td>
+              <td class="pct-cell up" data-base="0.0001">N/A</td>
+              <td>—</td>
+            </tr>
+            <tr data-date="2010-07-17" data-price="0.05" data-cap="0">
+              <td>Jul 17, 2010</td>
+              <td>Mt. Gox opens</td>
+              <td>~$0.05</td>
+              <td class="pct-cell up" data-base="0.05">---</td>
+              <td>~$1M</td>
+            </tr>
+            <tr data-date="2013-12-07" data-price="1147" data-cap="13700000000">
+              <td>Dec 7, 2013</td>
+              <td>2013 Peak</td>
+              <td>$1,147</td>
+              <td class="pct-cell up" data-base="1147">---</td>
+              <td>~$13.7B</td>
+            </tr>
+            <tr data-date="2017-12-11" data-price="19783" data-cap="331000000000">
+              <td>Dec 11, 2017</td>
+              <td>2017 Bubble Peak</td>
+              <td>$19,783</td>
+              <td class="pct-cell up" data-base="19783">---</td>
+              <td>~$331B</td>
+            </tr>
+            <tr data-date="2020-03-13" data-price="3850" data-cap="70000000000">
+              <td>Mar 13, 2020</td>
+              <td>COVID Crash Bottom</td>
+              <td>$3,850</td>
+              <td class="pct-cell up" data-base="3850">---</td>
+              <td>~$70B</td>
+            </tr>
+            <tr data-date="2021-11-10" data-price="68789" data-cap="1295000000000">
+              <td>Nov 10, 2021</td>
+              <td>Former ATH</td>
+              <td>$68,789</td>
+              <td class="pct-cell up" data-base="68789">---</td>
+              <td>~$1.30T</td>
+            </tr>
+            <tr data-date="2025-03-14" data-price="108786" data-cap="2153000000000">
+              <td>Mar 14, 2025</td>
+              <td>New ATH</td>
+              <td>$108,786</td>
+              <td class="pct-cell" data-base="108786">---</td>
+              <td>~$2.15T</td>
+            </tr>
           </tbody>
         </table>
       </div>
     </section>
 
-    <section class="footer">
-      <p>Data from <a href="https://www.coingecko.com/" target="_blank">CoinGecko</a>. Updates every 60 seconds.</p>
-      <p>Pure client-side — no server, no tracking, no API keys needed.</p>
+    <!-- Mining Stats -->
+    <section class="mining-section" id="mining-stats">
+      <h2 class="section-title">Mining Statistics</h2>
+      <div class="stats-grid mining-grid">
+        <article class="stat-card">
+          <div class="stat-label">Network Hash Rate</div>
+          <div class="stat-value" id="mining-hashrate">---</div>
+          <div class="stat-date">EH/s</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-label">Difficulty</div>
+          <div class="stat-value" id="mining-difficulty">---</div>
+          <div class="stat-date">T (trillions)</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-label">Next Difficulty Estimate</div>
+          <div class="stat-value" id="mining-next-diff">---</div>
+          <div class="stat-date">~2,016 blocks</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-label">Block Reward</div>
+          <div class="stat-value" id="mining-reward">3.125 BTC</div>
+          <div class="stat-date">Halved Apr 2024</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-label">Blocks Until Halving</div>
+          <div class="stat-value" id="mining-blocks-halving">---</div>
+          <div class="stat-date">~Apr 2028</div>
+        </article>
+        <article class="stat-card">
+          <div class="stat-label">Avg Block Time</div>
+          <div class="stat-value" id="mining-blocktime">10 min</div>
+          <div class="stat-date">Target 600 seconds</div>
+        </article>
+      </div>
     </section>
+
+    <!-- Market Comparison -->
+    <section class="market-section" id="market-comparison">
+      <h2 class="section-title">Market Cap Comparison</h2>
+      <div class="glass-card market-card">
+        <div class="market-bars" id="market-bars">
+          <div class="market-bar-row" data-cap="18500000000000">
+            <span class="market-name">Gold</span>
+            <div class="market-track"><div class="market-fill" style="--fill:100%"></div></div>
+            <span class="market-value">$18.5T</span>
+          </div>
+          <div class="market-bar-row" data-cap="52000000000000">
+            <span class="market-name">S&amp;P 500</span>
+            <div class="market-track"><div class="market-fill accent" style="--fill:100%"></div></div>
+            <span class="market-value">$52T</span>
+          </div>
+          <div class="market-bar-row" data-cap="3500000000000">
+            <span class="market-name">Apple</span>
+            <div class="market-track"><div class="market-fill accent" style="--fill:19%"></div></div>
+            <span class="market-value">$3.5T</span>
+          </div>
+          <div class="market-bar-row highlight" data-cap="2150000000000">
+            <span class="market-name">Bitcoin</span>
+            <div class="market-track"><div class="market-fill" style="--fill:12%"></div></div>
+            <span class="market-value">$2.15T</span>
+          </div>
+          <div class="market-bar-row" data-cap="1800000000000">
+            <span class="market-name">Tesla</span>
+            <div class="market-track"><div class="market-fill accent" style="--fill:10%"></div></div>
+            <span class="market-value">$1.8T</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- News Feed -->
+    <section class="news-section" id="news-feed">
+      <h2 class="section-title">Latest News</h2>
+      <div class="news-grid">
+        <article class="news-card glass-card skeleton">
+          <div class="news-meta">Just now</div>
+          <h3 class="news-title">Bitcoin mining difficulty reaches new all-time high</h3>
+          <p class="news-excerpt">Network security continues to strengthen as global hash rate climbs steadily…</p>
+        </article>
+        <article class="news-card glass-card skeleton">
+          <div class="news-meta">2h ago</div>
+          <h3 class="news-title">Institutional inflows into BTC ETFs surge to monthly record</h3>
+          <p class="news-excerpt">Spot ETF products absorbed over $2.1B in net inflows this week…</p>
+        </article>
+        <article class="news-card glass-card skeleton">
+          <div class="news-meta">5h ago</div>
+          <h3 class="news-title">Global regulatory clarity advances across G7 nations</h3>
+          <p class="news-excerpt">New frameworks proposed for digital asset custody and exchange oversight…</p>
+        </article>
+        <article class="news-card glass-card skeleton">
+          <div class="news-meta">8h ago</div>
+          <h3 class="news-title">Lightning Network capacity crosses 6,000 BTC</h3>
+          <p class="news-excerpt">Layer-2 payments network continues rapid expansion with new node growth…</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section class="about-section" id="about">
+      <h2 class="section-title">About</h2>
+      <div class="glass-card about-card">
+        <p>Bitcoin Price Tracker is a lightweight, client-only dashboard showing real-time BTC price data from CoinGecko. No server, no tracking, no API keys required.</p>
+        <p>Features include interactive price charts, a DCA simulator, mining statistics, fear &amp; greed sentiment gauge, market cap comparisons, and historical milestone data.</p>
+        <p>Built with vanilla HTML5, CSS3, and JavaScript. Charts powered by Chart.js.</p>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Data from <a href="https://www.coingecko.com/" target="_blank" rel="noopener">CoinGecko</a>. Updates every 60 seconds.</p>
+      <p>Pure client-side — no server, no tracking, no API keys needed.</p>
+      <p class="footer-meta"><span id="footer-last-update">Last update: —</span></p>
+    </footer>
   </main>
 
   <script src="js/main.js"></script>

@@ -1,0 +1,41 @@
+{
+  "description": "Bitcoin market statistics",
+  "source": "CoinGecko, blockchain.com, multiple sources",
+  "last_updated": "2026-05-01",
+  "all_time_high": {
+    "price_usd": 109000.00,
+    "date": "2025-01-20",
+    "exchange": "Coinbase Pro",
+    "source": "CoinGecko"
+  },
+  "all_time_low": {
+    "price_usd": 0.01,
+    "date": "2009-10-12",
+    "note": "First recorded trade by New Liberty Standard"
+  },
+  "circulating_supply": {
+    "value_satoshis": 1984500000000000,
+    "btc": 19845000.0,
+    "max_supply_btc": 21000000.0,
+    "percent_mined": 94.5
+  },
+  "market_cap": {
+    "rank": 1,
+    "usd_approx": 1920000000000,
+    "dominance_percent": 58.2
+  },
+  "network_stats": {
+    "hashrate_ehs": 720.0,
+    "difficulty_t": 108.4,
+    "avg_block_time_min": 9.8,
+    "avg_tx_per_block": 2800,
+    "mempool_size_mb": 85.0
+  },
+  "volatility_30d_percent": 42.5,
+  "drawdown_from_ath_percent": 11.0,
+  "correlations": {
+    "sp500_30d": 0.25,
+    "gold_30d": 0.08,
+    "nasdaq_30d": 0.31
+  }
+}

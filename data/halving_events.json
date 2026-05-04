@@ -1,0 +1,56 @@
+{
+  "description": "Bitcoin halving events history",
+  "source": "Bitcoin blockchain data",
+  "halvings": [
+    {
+      "halving_number": 1,
+      "date": "2012-11-28",
+      "block_height": 210000,
+      "block_reward_before": 50.0,
+      "block_reward_after": 25.0,
+      "price_usd_pre": 12.35,
+      "price_usd_year_after": 1175.0,
+      "price_multiple": 95.0,
+      "block_time_seconds": 600
+    },
+    {
+      "halving_number": 2,
+      "date": "2016-07-09",
+      "block_height": 420000,
+      "block_reward_before": 25.0,
+      "block_reward_after": 12.5,
+      "price_usd_pre": 650.0,
+      "price_usd_year_after": 2580.0,
+      "price_multiple": 4.0,
+      "block_time_seconds": 600
+    },
+    {
+      "halving_number": 3,
+      "date": "2020-05-11",
+      "block_height": 630000,
+      "block_reward_before": 12.5,
+      "block_reward_after": 6.25,
+      "price_usd_pre": 8600.0,
+      "price_usd_year_after": 56000.0,
+      "price_multiple": 6.5,
+      "block_time_seconds": 600
+    },
+    {
+      "halving_number": 4,
+      "date": "2024-04-20",
+      "block_height": 840000,
+      "block_reward_before": 6.25,
+      "block_reward_after": 3.125,
+      "price_usd_pre": 64000.0,
+      "price_usd_year_after": 97000.0,
+      "price_multiple": 1.5,
+      "block_time_seconds": 600
+    }
+  ],
+  "future_halving": {
+    "halving_number": 5,
+    "estimated_date": "2028-03-15",
+    "block_height": 1050000,
+    "block_reward_after": 1.5625
+  }
+}
