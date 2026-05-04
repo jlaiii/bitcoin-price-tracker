@@ -349,6 +349,7 @@ nav a:hover, nav a:focus-visible {
   padding: 1rem;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  min-height: 400px;
 }
 
 .chart-wrapper canvas#btcChart {
@@ -403,6 +404,26 @@ nav a:hover, nav a:focus-visible {
   margin-top: 0.25rem;
 }
 
+/* === NEW / FIXED CLASSES === */
+
+/* Glass card reusable component */
+.glass-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
 /* 9. Converter Section */
 .converter-section {
   display: flex;
@@ -412,27 +433,23 @@ nav a:hover, nav a:focus-visible {
 .converter-card {
   width: 100%;
   max-width: 560px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
-  padding: 1.5rem;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
-.converter-card h2 {
-  font-size: 1.125rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
+.converter-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
-.converter-inputs {
+.converter-field {
+  flex: 1 1 160px;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
-.converter-inputs label {
+.converter-field label {
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-dim);
@@ -440,8 +457,8 @@ nav a:hover, nav a:focus-visible {
   letter-spacing: 0.06em;
 }
 
-.converter-inputs input[type="number"],
-.converter-inputs input[type="text"] {
+.converter-field input[type="number"],
+.converter-field input[type="text"] {
   width: 100%;
   padding: 0.75rem 1rem;
   background: rgba(255,255,255,0.025);
@@ -454,38 +471,16 @@ nav a:hover, nav a:focus-visible {
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.converter-inputs input:focus {
+.converter-field input:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
-.converter-inputs input::placeholder {
+.converter-field input::placeholder {
   color: var(--text-muted);
 }
 
-.converter-reverse {
-  align-self: center;
-  margin-block: 0.25rem;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--bg-soft);
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
-}
-
-.converter-reverse:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-  transform: rotate(180deg);
-}
-
-/* Slider */
-.converter-section input[type="range"] {
+.converter-field input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
@@ -496,7 +491,7 @@ nav a:hover, nav a:focus-visible {
   margin-top: 0.5rem;
 }
 
-.converter-section input[type="range"]::-webkit-slider-thumb {
+.converter-field input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 18px;
@@ -508,7 +503,7 @@ nav a:hover, nav a:focus-visible {
   box-shadow: 0 0 0 4px var(--accent-glow);
 }
 
-.converter-section input[type="range"]::-moz-range-thumb {
+.converter-field input[type="range"]::-moz-range-thumb {
   width: 18px;
   height: 18px;
   border-radius: 50%;
@@ -518,8 +513,34 @@ nav a:hover, nav a:focus-visible {
   box-shadow: 0 0 0 4px var(--accent-glow);
 }
 
+.converter-toggle {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.converter-toggle:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  transform: rotate(180deg);
+}
+
 /* 10. Fear & Greed */
 #fear-greed {
+  text-align: center;
+}
+
+.fear-greed-card {
+  max-width: 520px;
+  margin-inline: auto;
   text-align: center;
 }
 
@@ -531,51 +552,42 @@ nav a:hover, nav a:focus-visible {
   margin-top: 1.5rem;
 }
 
-.gauge-bg {
+.gauge-svg {
   width: 100%;
-  height: 100%;
-  border-radius: min(280px, 80vw) min(280px, 80vw) 0 0;
-  background: conic-gradient(from 180deg at 50% 100%,
-    var(--red) 0deg 36deg,
-    #f97316 36deg 72deg,
-    var(--accent) 72deg 108deg,
-    #eab308 108deg 144deg,
-    var(--green) 144deg 180deg);
-  opacity: 0.35;
-  mask-image: radial-gradient(circle at 50% 100%, transparent 55%, black 56%);
-  -webkit-mask-image: radial-gradient(circle at 50% 100%, transparent 55%, black 56%);
+  height: auto;
+  display: block;
 }
 
+/* The SVG #gauge-needle transform is controlled via JS setAttribute.
+   We keep a CSS transition for smooth movement if the browser supports
+   transitions on SVG transform (not universally supported). */
 .gauge-needle {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 3px;
-  height: 42%;
-  background: #fff;
-  transform-origin: bottom center;
-  transform: translateX(-50%) rotate(-90deg);
-  border-radius: 4px;
-  transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: none;
 }
 
-.gauge-center {
-  position: absolute;
-  bottom: 6%;
-  left: 50%;
-  transform: translateX(-50%);
+.gauge-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  padding-inline: 0.5rem;
+}
+
+.fear-greed-values {
+  margin-top: 1.5rem;
   text-align: center;
 }
 
-.gauge-value {
+.fear-greed-score {
   font-family: var(--font-mono);
   font-size: clamp(1.75rem, 5vw, 2.5rem);
   font-weight: 800;
-  line-height: 1;
+  color: #fff;
 }
 
-.gauge-label {
-  font-size: 0.8125rem;
+.fear-greed-text {
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-dim);
   margin-top: 0.25rem;
@@ -600,7 +612,8 @@ nav a:hover, nav a:focus-visible {
 }
 
 #dca-calculator input[type="number"],
-#dca-calculator input[type="date"] {
+#dca-calculator input[type="date"],
+#dca-calculator select {
   width: 100%;
   padding: 0.65rem 0.875rem;
   background: rgba(255,255,255,0.025);
@@ -613,12 +626,22 @@ nav a:hover, nav a:focus-visible {
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-#dca-calculator input:focus {
+#dca-calculator input:focus,
+#dca-calculator select:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
-#dca-calculator button[type="submit"] {
+#dca-calculator select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%239AA3AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2rem;
+}
+
+#dca-calculator button[type="submit"],
+.dca-btn {
   grid-column: 1 / -1;
   justify-self: start;
   padding: 0.65rem 1.25rem;
@@ -628,12 +651,41 @@ nav a:hover, nav a:focus-visible {
   font-weight: 700;
   font-size: 0.875rem;
   border: 1px solid var(--accent);
+  cursor: pointer;
   transition: filter var(--transition-fast), transform var(--transition-fast);
 }
 
-#dca-calculator button[type="submit"]:hover {
+#dca-calculator button[type="submit"]:hover,
+.dca-btn:hover {
   filter: brightness(1.1);
   transform: translateY(-1px);
+}
+
+.dca-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.dca-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.dca-field label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.dca-field .field-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
 }
 
 #dca-results {
@@ -642,7 +694,13 @@ nav a:hover, nav a:focus-visible {
   gap: 1rem;
 }
 
-.dca-result-card {
+.dca-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.dca-result-item {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -651,23 +709,67 @@ nav a:hover, nav a:focus-visible {
   -webkit-backdrop-filter: blur(8px);
 }
 
-.dca-result-card h4 {
+.dca-result-label {
+  display: block;
   font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-dim);
+  font-weight: 700;
   margin-bottom: 0.375rem;
 }
 
-.dca-result-card .value {
+.dca-result-value {
   font-family: var(--font-mono);
   font-size: 1.375rem;
   font-weight: 700;
   color: #fff;
 }
 
-.dca-result-card .value.positive { color: var(--green); }
-.dca-result-card .value.negative { color: var(--red); }
+.dca-result-value.up  { color: var(--green); }
+.dca-result-value.down { color: var(--red); }
+
+/* Injected from JS calculator */
+.dca-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.dca-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.dca-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+.dca-val {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.dca-val.up   { color: var(--green); }
+.dca-val.down { color: var(--red); }
+
+.dca-note {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
 
 /* 12. History Table */
 .history-table h2 {
@@ -713,8 +815,8 @@ nav a:hover, nav a:focus-visible {
   color: var(--text-dim);
 }
 
-.history-table thead th.asc::after { content: ' \2191'; }
-.history-table thead th.desc::after { content: ' \2193'; }
+.history-table thead th.asc::after { content: ' ↑'; }
+.history-table thead th.desc::after { content: ' ↓'; }
 
 .history-table tbody tr {
   transition: background var(--transition-fast);
@@ -794,38 +896,53 @@ nav a:hover, nav a:focus-visible {
   margin-top: 1rem;
 }
 
-.comparison-item {
+.market-card {
+  max-width: 720px;
+  margin-inline: auto;
+}
+
+.market-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.market-bar-row {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 100px 1fr auto;
   align-items: center;
   gap: 0.75rem;
 }
 
-.comparison-label {
+.market-bar-row.highlight .market-name { color: var(--accent); }
+
+.market-name {
   font-size: 0.8125rem;
   font-weight: 600;
   color: var(--text-dim);
+  white-space: nowrap;
 }
 
-.comparison-bar-wrap {
+.market-track {
   height: 10px;
   background: rgba(255,255,255,0.04);
   border-radius: 9999px;
   overflow: hidden;
 }
 
-.comparison-bar {
+.market-fill {
   height: 100%;
   border-radius: 9999px;
-  background: var(--text-muted);
-  transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.comparison-item.btc .comparison-bar {
   background: var(--accent);
+  transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+  width: var(--fill, 0%);
 }
 
-.comparison-pct {
+.market-fill.accent {
+  background: var(--text-muted);
+}
+
+.market-value {
   font-family: var(--font-mono);
   font-size: 0.8125rem;
   font-weight: 700;
@@ -881,7 +998,29 @@ nav a:hover, nav a:focus-visible {
   margin-top: 0.5rem;
 }
 
-/* 16. Footer */
+.news-excerpt {
+  font-size: 0.875rem;
+  color: var(--text-dim);
+  margin-top: 0.5rem;
+  line-height: 1.5;
+}
+
+/* 16. About */
+.about-section {
+  text-align: center;
+}
+
+.about-card {
+  max-width: 720px;
+  margin-inline: auto;
+  text-align: left;
+}
+
+.about-card p + p {
+  margin-top: 0.75rem;
+}
+
+/* 17. Footer */
 .footer {
   text-align: center;
   padding: 2rem 1rem;
@@ -900,7 +1039,13 @@ nav a:hover, nav a:focus-visible {
   text-decoration: underline;
 }
 
-/* 17. Loading States */
+.footer-meta {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* 18. Loading States */
 .loader {
   display: flex;
   align-items: center;
@@ -917,6 +1062,11 @@ nav a:hover, nav a:focus-visible {
   animation: spin 0.8s linear infinite;
 }
 
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .skeleton {
   background: linear-gradient(110deg, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.02) 75%);
   background-size: 200% 100%;
@@ -929,7 +1079,7 @@ nav a:hover, nav a:focus-visible {
   100% { background-position: -200% 0; }
 }
 
-/* 18. Fade-in on scroll (IntersectionObserver ready) */
+/* 19. Fade-in on scroll (IntersectionObserver ready) */
 .fade-in {
   opacity: 0;
   transform: translateY(12px);
@@ -947,7 +1097,7 @@ nav a:hover, nav a:focus-visible {
 .stagger .fade-in:nth-child(3) { transition-delay: 120ms; }
 .stagger .fade-in:nth-child(4) { transition-delay: 180ms; }
 
-/* 19. Price flash animation */
+/* 20. Price flash animation */
 .flash-up {
   animation: flash-green 0.7s ease;
 }
@@ -966,7 +1116,7 @@ nav a:hover, nav a:focus-visible {
   100% { background: transparent; }
 }
 
-/* 20. Custom Scrollbar */
+/* 21. Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -991,7 +1141,7 @@ html {
   scrollbar-color: rgba(255,255,255,0.08) transparent;
 }
 
-/* 21. Focus states */
+/* 22. Focus states */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
@@ -1003,7 +1153,7 @@ textarea:focus-visible,
   border-radius: 2px;
 }
 
-/* 22. Reduced motion */
+/* 23. Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .pulse-dot, .spinner, .skeleton, .news-image,
@@ -1015,7 +1165,7 @@ textarea:focus-visible,
   .fade-in { opacity: 1; transform: none; }
 }
 
-/* 23. Responsive */
+/* 24. Responsive */
 @media (max-width: 639px) {
   .header-inner { padding: 0.625rem 0.875rem; }
   #menu-toggle { display: flex; }
@@ -1065,7 +1215,7 @@ textarea:focus-visible,
   section { padding-block: 4rem; }
 }
 
-/* 24. Print Styles */
+/* 25. Print Styles */
 @media print {
   *, *::before, *::after {
     background: transparent !important;

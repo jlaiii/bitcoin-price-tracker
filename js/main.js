@@ -43,12 +43,13 @@ const BTC = {
 
   /* ─────────────────────── Init ─────────────────────── */
   async init() {
-    this.removeSkeletons();
     await this.loadYearData();
     this.bindTabs();
     this.bindConverter();
     this.bindDCA();
     this.initMobileTabs();
+    this.bindSort();
+    this.initMarketBars();
 
     // kick off parallel async data loads
     this.fetchPrice();
@@ -126,20 +127,23 @@ const BTC = {
 
   /* ─────────────────────── Year Data (local fallback) ─────────────────────── */
   async loadYearData() {
-    try {
-      const res = await fetch('year_data.json');
-      if (!res.ok) throw new Error('year_data.json not found');
-      const json = await res.json();
-      // Normalize to arrays of [timestamp, price]
-      if (json.prices && Array.isArray(json.prices)) {
-        this.yearData = json.prices;
-      } else {
-        this.yearData = [];
+    // Try data/year_data.json first, then root fallback
+    const urls = ['data/year_data.json', 'year_data.json'];
+    for (const url of urls) {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`${url} not found`);
+        const json = await res.json();
+        if (json.prices && Array.isArray(json.prices)) {
+          this.yearData = json.prices;
+          return;
+        }
+        throw new Error(`${url} missing prices array`);
+      } catch (e) {
+        console.warn(`Failed to load ${url}:`, e);
       }
-    } catch (e) {
-      console.warn('Failed to load year_data.json:', e);
-      this.yearData = [];
     }
+    this.yearData = [];
   },
 
   /* ─────────────────────── Price Fetching ─────────────────────── */
@@ -182,6 +186,7 @@ const BTC = {
 
       this.updateMilestones();
       this.updateConverter();
+      this.removeSkeletons();
     } catch (e) {
       console.error('Price fetch failed:', e);
       if (attempt < this.retryDelays.length) {
@@ -457,21 +462,20 @@ const BTC = {
   bindConverter() {
     const input = document.getElementById('btc-input');
     const output = document.getElementById('usd-output');
+    const slider = document.getElementById('btc-slider');
     if (!input || !output) return;
 
     input.addEventListener('input', () => this.updateConverter());
+    if (slider) {
+      slider.addEventListener('input', () => {
+        input.value = slider.value;
+        this.updateConverter();
+      });
+    }
 
-    // Add reverse toggle if not already in DOM
-    let toggleBtn = document.querySelector('.converter-toggle');
-    const wrapper = input.closest('.converter') || input.parentElement;
-    if (wrapper && !toggleBtn) {
-      toggleBtn = document.createElement('button');
-      toggleBtn.type = 'button';
-      toggleBtn.className = 'converter-toggle';
-      toggleBtn.textContent = '⇄';
-      toggleBtn.setAttribute('aria-label', 'Toggle conversion direction');
+    const toggleBtn = document.getElementById('converter-toggle');
+    if (toggleBtn) {
       toggleBtn.addEventListener('click', () => this.toggleConverterMode());
-      wrapper.appendChild(toggleBtn);
     }
   },
 
@@ -483,29 +487,39 @@ const BTC = {
 
     const raw = parseFloat(input.value);
     if (Number.isNaN(raw)) {
-      output.textContent = this.converterMode === 'btc2usd' ? '$0.00' : '0 BTC';
+      output.value = this.converterMode === 'btc2usd' ? '$0.00' : '0 BTC';
       return;
     }
 
     if (this.converterMode === 'btc2usd') {
-      output.textContent = this.fmtUSD(raw * this.currentPrice);
+      output.value = this.fmtUSD(raw * this.currentPrice);
     } else {
       const btc = raw / this.currentPrice;
-      output.textContent = `${btc.toFixed(8)} BTC`;
+      output.value = `${btc.toFixed(8)} BTC`;
     }
   },
 
   toggleConverterMode() {
     const input = document.getElementById('btc-input');
-    const label = document.querySelector('.converter-label') || input?.previousElementSibling;
+    const output = document.getElementById('usd-output');
+    const toggleBtn = document.getElementById('converter-toggle');
+    const inputLabel = input?.closest('.converter-field')?.querySelector('label');
+    const outputLabel = output?.closest('.converter-field')?.querySelector('label');
+
     this.converterMode = this.converterMode === 'btc2usd' ? 'usd2btc' : 'btc2usd';
 
     if (input) {
       input.placeholder = this.converterMode === 'btc2usd' ? 'BTC amount' : 'USD amount';
       input.value = '';
     }
-    if (label) {
-      label.textContent = this.converterMode === 'btc2usd' ? 'BTC → USD' : 'USD → BTC';
+    if (inputLabel) {
+      inputLabel.textContent = this.converterMode === 'btc2usd' ? 'BTC' : 'USD';
+    }
+    if (outputLabel) {
+      outputLabel.textContent = this.converterMode === 'btc2usd' ? 'USD' : 'BTC';
+    }
+    if (toggleBtn) {
+      toggleBtn.title = this.converterMode === 'btc2usd' ? 'Swap direction (USD → BTC)' : 'Swap direction (BTC → USD)';
     }
     this.updateConverter();
   },
@@ -528,7 +542,13 @@ const BTC = {
       const label = this.fearGreedLabel(val);
       lblEl.textContent = label;
       lblEl.style.color = this.fearGreedColor(val);
-      // update a CSS custom property on the gauge wrapper if present
+      // update needle rotation directly on the SVG element
+      const needle = document.getElementById('gauge-needle');
+      if (needle) {
+        // map 0-100 to -90deg to +90deg
+        const deg = -90 + (val / 100) * 180;
+        needle.setAttribute('transform', `rotate(${deg}, 100, 100)`);
+      }
       const gauge = document.querySelector('.fear-greed-gauge');
       if (gauge) gauge.style.setProperty('--gauge-pct', `${val}%`);
     } catch (e) {
@@ -578,7 +598,8 @@ const BTC = {
       return;
     }
 
-    const freqDays = parseInt(freqEl.value, 10); // e.g., 1=daily, 7=weekly, 30=monthly
+    const frequencyMap = { weekly: 7, monthly: 30 };
+    const freqDays = frequencyMap[freqEl.value] || parseInt(freqEl.value, 10) || 7;
     const startStr = startEl.value; // yyyy-mm-dd
     if (!startStr) {
       outEl.innerHTML = '<p class="dca-note">Please select a start date.</p>';
@@ -687,16 +708,16 @@ const BTC = {
   /* ─────────────────────── Mining Stats (placeholder) ─────────────────────── */
   async fetchMiningStats() {
     const placeholders = {
-      '#hashrate':    'Hash Rate: ~650 EH/s',
-      '#difficulty':  'Difficulty: ~95T',
-      '#next-halving':'Next Halving: ~April 2028',
-      '#block-reward':'Block Reward: 3.125 BTC',
-      '#blocks-left': 'Blocks Until Halving: ~145,000'
+      'mining-hashrate':     '~650',
+      'mining-difficulty':   '~95',
+      'mining-next-diff':    '---',
+      'mining-reward':       '3.125 BTC',
+      'mining-blocks-halving':'~145,000'
     };
 
     // Attempt mempool.space (may be blocked by CORS; gracefully degrade)
-    let hashrate = null;
-    let difficulty = null;
+    let hashrateVal = null;
+    let difficultyVal = null;
     try {
       const res = await fetch(this.HASHRATE_API, { mode: 'cors' });
       if (res.ok) {
@@ -705,7 +726,7 @@ const BTC = {
         const current = json?.currentHashrate;
         if (current) {
           const ehs = current / 1e18;
-          hashrate = `Hash Rate: ~${ehs.toFixed(1)} EH/s`;
+          hashrateVal = `${ehs.toFixed(1)}`;
         }
       }
     } catch (e) {
@@ -719,32 +740,103 @@ const BTC = {
         const diff = json2?.difficulty?.[0]?.difficulty;
         if (diff) {
           const t = diff / 1e12;
-          difficulty = `Difficulty: ~${t.toFixed(1)}T`;
+          difficultyVal = `${t.toFixed(1)}`;
         }
       }
     } catch (e) {
       // ignore
     }
 
-    // Render whichever fields exist in the page via generic data attribute or known IDs
-    const container = document.getElementById('mining-stats') || document.querySelector('.mining-section');
-    const entries = [
-      { id: 'hashrate',    text: hashrate    || placeholders['#hashrate'] },
-      { id: 'difficulty',  text: difficulty  || placeholders['#difficulty'] },
-      { id: 'next-halving',text: placeholders['#next-halving'] },
-      { id: 'block-reward',text: placeholders['#block-reward'] },
-      { id: 'blocks-left', text: placeholders['#blocks-left'] }
-    ];
+    const updates = {
+      'mining-hashrate':    hashrateVal || placeholders['mining-hashrate'],
+      'mining-difficulty':  difficultyVal || placeholders['mining-difficulty'],
+      'mining-next-diff':   placeholders['mining-next-diff'],
+      'mining-reward':      placeholders['mining-reward'],
+      'mining-blocks-halving': placeholders['mining-blocks-halving']
+    };
 
-    entries.forEach(({ id, text }) => {
+    Object.entries(updates).forEach(([id, text]) => {
       const el = document.getElementById(id);
       if (el) el.textContent = text;
     });
+  },
 
-    // If there's a unified mining-stats container but no individual IDs, build a list
-    if (container) {
-      container.innerHTML = entries.map(e => `<div class="mining-row">${e.text}</div>`).join('');
-    }
+  /* ─────────────────────── Sortable History Table ─────────────────────── */
+  bindSort() {
+    const table = document.querySelector('.history-table table');
+    if (!table) return;
+    const headers = table.querySelectorAll('thead th.sortable');
+    headers.forEach(th => {
+      th.style.cursor = 'pointer';
+      th.addEventListener('click', () => {
+        const sortKey = th.dataset.sort;
+        if (!sortKey) return;
+
+        // Determine current direction and reset others
+        const currentDir = th.classList.contains('asc') ? 'asc' : th.classList.contains('desc') ? 'desc' : null;
+        headers.forEach(h => h.classList.remove('asc', 'desc'));
+        const dir = currentDir === 'asc' ? 'desc' : 'asc';
+        th.classList.add(dir);
+
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+
+        rows.sort((a, b) => {
+          let aVal, bVal;
+          if (sortKey === 'date') {
+            aVal = new Date(a.dataset.date || a.querySelector('td')?.textContent || 0).getTime();
+            bVal = new Date(b.dataset.date || b.querySelector('td')?.textContent || 0).getTime();
+          } else if (sortKey === 'event') {
+            aVal = a.querySelector('td:nth-child(2)')?.textContent?.trim() || '';
+            bVal = b.querySelector('td:nth-child(2)')?.textContent?.trim() || '';
+            return dir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+          } else if (sortKey === 'price') {
+            aVal = parseFloat(a.dataset.price || 0);
+            bVal = parseFloat(b.dataset.price || 0);
+          } else if (sortKey === 'change') {
+            const aCell = a.querySelector('.pct-cell[data-base]');
+            const bCell = b.querySelector('.pct-cell[data-base]');
+            const aBase = parseFloat(aCell?.dataset.base || 0);
+            const bBase = parseFloat(bCell?.dataset.base || 0);
+            aVal = aBase && this.currentPrice ? ((this.currentPrice - aBase) / aBase) * 100 : -Infinity;
+            bVal = bBase && this.currentPrice ? ((this.currentPrice - bBase) / bBase) * 100 : -Infinity;
+          } else if (sortKey === 'cap') {
+            aVal = parseFloat(a.dataset.cap || 0);
+            bVal = parseFloat(b.dataset.cap || 0);
+          } else {
+            aVal = a.querySelector('td')?.textContent?.trim() || '';
+            bVal = b.querySelector('td')?.textContent?.trim() || '';
+            return dir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+          }
+          return dir === 'asc' ? aVal - bVal : bVal - aVal;
+        });
+
+        rows.forEach(r => tbody.appendChild(r));
+      });
+    });
+  },
+
+  /* ─────────────────────── Market Comparison Bars ─────────────────────── */
+  initMarketBars() {
+    const container = document.getElementById('market-bars');
+    if (!container) return;
+    const rows = container.querySelectorAll('.market-bar-row');
+    let maxCap = 0;
+    rows.forEach(row => {
+      const cap = parseFloat(row.dataset.cap);
+      if (cap && cap > maxCap) maxCap = cap;
+    });
+    if (!maxCap) return;
+    rows.forEach(row => {
+      const cap = parseFloat(row.dataset.cap);
+      const fill = row.querySelector('.market-fill');
+      if (fill && cap) {
+        const pct = (cap / maxCap) * 100;
+        fill.style.width = `${pct}%`;
+        // fallback if CSS doesn't use --fill
+        fill.style.setProperty('--fill', `${pct}%`);
+      }
+    });
   }
 };
 
